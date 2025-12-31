@@ -119,8 +119,8 @@ def pair_movies(movielist):
 
 def compare_movies(completed_comparisons):
     movie1, movie2 = pair_movies(Movies.movielist)
-    es1 = 1 / (1 + 10 ** ((movie2.get_score() - movie1.get_score()) / 400)) #Expected score for movie 1
-    es2 = 1 / (1 + 10 ** ((movie1.get_score() - movie2.get_score()) / 400)) #Expected score for movie 2
+    es1 = 1 / (1 + 10 ** ((movie2.get_score() - movie1.get_score()) / 400)) 
+    es2 = 1 / (1 + 10 ** ((movie1.get_score() - movie2.get_score()) / 400)) 
     
     def get_k_factor(movie):
         if movie.get_times_rated() < 4:
@@ -148,16 +148,16 @@ def compare_movies(completed_comparisons):
     while True:
         choice = input(f"1/2, q för att spara och avsluta: ")
         if choice == "1":
-            ns1 = movie1.get_score() + k1 * (1 - es1) #New score for movie 1
-            ns2 = movie2.get_score() + k2 * (0 - es2) #New score for movie 2
+            ns1 = movie1.get_score() + k1 * (1 - es1) 
+            ns2 = movie2.get_score() + k2 * (0 - es2) 
             movie1.set_score(ns1)
             movie2.set_score(ns2)
             movie1.set_times_rated(movie1.get_times_rated() + 1)
             movie2.set_times_rated(movie2.get_times_rated() + 1)
             break
         elif choice == "2":
-            ns1 = movie1.get_score() + k1 * (0 - es1) #New score for movie 1
-            ns2 = movie2.get_score() + k2 * (1 - es2) #New score for movie 2
+            ns1 = movie1.get_score() + k1 * (0 - es1) 
+            ns2 = movie2.get_score() + k2 * (1 - es2) 
             movie1.set_score(ns1)
             movie2.set_score(ns2)
             movie1.set_times_rated(movie1.get_times_rated() + 1)
@@ -226,4 +226,5 @@ def create_csv_file():
         
 
 if __name__ == "__main__":
+
     program()
