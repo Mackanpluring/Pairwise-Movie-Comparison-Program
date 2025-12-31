@@ -117,15 +117,17 @@ def pair_movies(movielist):
     return movie1, movie2
 
 
-def compare_movies(completed_comparisons):
+def compare_movies(completed_comparisons, comparison_target):
     movie1, movie2 = pair_movies(Movies.movielist)
-    es1 = 1 / (1 + 10 ** ((movie2.get_score() - movie1.get_score()) / 400)) 
-    es2 = 1 / (1 + 10 ** ((movie1.get_score() - movie2.get_score()) / 400)) 
+    es1 = 1 / (1 + 10 ** ((movie2.get_score() - movie1.get_score()) / 400)) #Expected score for movie 1
+    es2 = 1 / (1 + 10 ** ((movie1.get_score() - movie2.get_score()) / 400)) #Expected score for movie 2
     
-    def get_k_factor(movie):
-        if movie.get_times_rated() < 4:
+    def get_k_factor(movie, comparison_target):
+        threshold = movie.get_times_rated() / comparison_target
+
+        if threshold < 0.33:
             return 64
-        elif movie.get_times_rated() < 9:
+        elif threshold < 0.67:
             return 32
         else:
             return 16
@@ -136,10 +138,11 @@ def compare_movies(completed_comparisons):
         else:
             return movie.get_title()
 
-    k1 = get_k_factor(movie1)
-    k2 = get_k_factor(movie2)
+    k1 = get_k_factor(movie1, comparison_target)
+    k2 = get_k_factor(movie2, comparison_target)
 
-    print(f"\nJämförelse: {completed_comparisons}/{len(Movies.movielist) * 6} | {completed_comparisons / (len(Movies.movielist) * 6) * 100:.2f}% avklarad")
+    total_matchups = (len(Movies.movielist) * comparison_target) // 2
+    print(f"\nJämförelse: {completed_comparisons}/{total_matchups} | {completed_comparisons / total_matchups * 100:.2f}% avklarad")
     print("(!) Kom ihåg att jämförelsen utgår från vilken av dessa två du helst skulle se just nu.")
     print("(!) Om du minns en film bättre än den andra, låt den vinna.")
     print(f"\nVilken film är bättre?")
@@ -148,16 +151,16 @@ def compare_movies(completed_comparisons):
     while True:
         choice = input(f"1/2, q för att spara och avsluta: ")
         if choice == "1":
-            ns1 = movie1.get_score() + k1 * (1 - es1) 
-            ns2 = movie2.get_score() + k2 * (0 - es2) 
+            ns1 = movie1.get_score() + k1 * (1 - es1) #New score for movie 1
+            ns2 = movie2.get_score() + k2 * (0 - es2) #New score for movie 2
             movie1.set_score(ns1)
             movie2.set_score(ns2)
             movie1.set_times_rated(movie1.get_times_rated() + 1)
             movie2.set_times_rated(movie2.get_times_rated() + 1)
             break
         elif choice == "2":
-            ns1 = movie1.get_score() + k1 * (0 - es1) 
-            ns2 = movie2.get_score() + k2 * (1 - es2) 
+            ns1 = movie1.get_score() + k1 * (0 - es1) #New score for movie 1
+            ns2 = movie2.get_score() + k2 * (1 - es2) #New score for movie 2
             movie1.set_score(ns1)
             movie2.set_score(ns2)
             movie1.set_times_rated(movie1.get_times_rated() + 1)
@@ -189,7 +192,7 @@ def program():
     number_of_comparisons = round(math.log2(len(Movies.movielist)) + 3)
 
     while min(m.get_times_rated() for m in Movies.movielist) < number_of_comparisons:
-        compare_movies(completed_comparisons)
+        compare_movies(completed_comparisons, number_of_comparisons)
         completed_comparisons += 1
 
     convert_score_to_star_rating(Movies.movielist)
@@ -226,5 +229,4 @@ def create_csv_file():
         
 
 if __name__ == "__main__":
-
     program()
